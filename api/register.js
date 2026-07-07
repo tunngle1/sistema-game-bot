@@ -29,22 +29,31 @@ function getAllowedOrigins() {
   }).filter(Boolean);
 }
 
-function setCors(req, res) {
-  var requestOrigin = req.headers.origin;
+function isOriginAllowed(requestOrigin) {
+  if (!requestOrigin) return true;
+
+  var normalized = requestOrigin.replace(/\/$/, '');
   var allowed = getAllowedOrigins();
 
-  if (allowed === null) {
-    res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
-  } else if (!requestOrigin) {
-    res.setHeader('Access-Control-Allow-Origin', allowed[0]);
-  } else {
-    var normalized = requestOrigin.replace(/\/$/, '');
-    if (allowed.indexOf(normalized) === -1) {
-      return false;
-    }
-    res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+  if (allowed === null) return true;
+  if (allowed.indexOf(normalized) !== -1) return true;
+
+  /* Vercel-деплои лендинга sistema-game* */
+  if (/^https:\/\/sistema-game[-a-z0-9]*\.vercel\.app$/i.test(normalized)) {
+    return true;
   }
 
+  return false;
+}
+
+function setCors(req, res) {
+  var requestOrigin = req.headers.origin;
+
+  if (!isOriginAllowed(requestOrigin)) {
+    return false;
+  }
+
+  res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Vary', 'Origin');
