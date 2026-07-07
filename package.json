@@ -1,0 +1,6 @@
+{
+  "name": "sistema-game-bot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Telegram-бот для заявок с лендинга «Система»"
+}
