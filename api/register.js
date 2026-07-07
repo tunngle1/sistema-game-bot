@@ -4,7 +4,9 @@
  * Переменные окружения (Vercel → Settings → Environment Variables):
  *   TELEGRAM_BOT_TOKEN — токен от @BotFather
  *   TELEGRAM_CHAT_ID   — ID чата, куда приходят заявки
- *   ALLOWED_ORIGIN     — URL сайта, например https://sistema-game.vercel.app
+ *   ALLOWED_ORIGINS — URL сайта через запятую, например:
+ *     https://sistema-game.vercel.app,https://sistema-game-vert.vercel.app
+ *   (или ALLOWED_ORIGIN=* чтобы разрешить все)
  */
 
 function sanitize(value, maxLen) {
@@ -19,15 +21,30 @@ function formatTelegram(username) {
   return clean ? '@' + clean : '—';
 }
 
-function setCors(req, res) {
-  var origin = process.env.ALLOWED_ORIGIN || '*';
-  var requestOrigin = req.headers.origin;
+function getAllowedOrigins() {
+  var raw = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '*';
+  if (raw === '*') return null;
+  return raw.split(',').map(function (item) {
+    return item.trim().replace(/\/$/, '');
+  }).filter(Boolean);
+}
 
-  if (origin !== '*' && requestOrigin && requestOrigin !== origin) {
-    return false;
+function setCors(req, res) {
+  var requestOrigin = req.headers.origin;
+  var allowed = getAllowedOrigins();
+
+  if (allowed === null) {
+    res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
+  } else if (!requestOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', allowed[0]);
+  } else {
+    var normalized = requestOrigin.replace(/\/$/, '');
+    if (allowed.indexOf(normalized) === -1) {
+      return false;
+    }
+    res.setHeader('Access-Control-Allow-Origin', requestOrigin);
   }
 
-  res.setHeader('Access-Control-Allow-Origin', origin === '*' && requestOrigin ? requestOrigin : origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Vary', 'Origin');
