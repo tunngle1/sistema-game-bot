@@ -95,7 +95,8 @@ module.exports = async function handler(req, res) {
 
     if (!tgResponse.ok || !tgData.ok) {
       console.error('Telegram API error:', tgData);
-      return res.status(502).json({ ok: false, error: 'Failed to send to Telegram' });
+      var hint = tgData.description || 'Failed to send to Telegram';
+      return res.status(502).json({ ok: false, error: hint });
     }
 
     return res.status(200).json({ ok: true });

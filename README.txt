@@ -21,7 +21,7 @@ bot/
 3. Откройте в браузере:
    https://api.telegram.org/bot<TOKEN>/getUpdates
    Найдите "chat":{"id": ...} — это TELEGRAM_CHAT_ID
-   (для группы ID отрицательный; бота добавьте в группу)
+   (для группы ID отрицательный; у supergroup начинается с -100)
 
 ДЕПЛОЙ НА VERCEL
 ----------------
