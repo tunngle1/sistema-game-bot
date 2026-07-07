@@ -4,8 +4,6 @@
  * Переменные окружения (Vercel → Settings → Environment Variables):
  *   TELEGRAM_BOT_TOKEN — токен от @BotFather
  *   TELEGRAM_CHAT_ID   — ID чата, куда приходят заявки
- *   ALLOWED_ORIGINS — опционально, список URL через запятую.
- *   По умолчанию разрешены запросы с любого origin (любой домен / устройство).
  */
 
 function sanitize(value, maxLen) {
@@ -22,19 +20,6 @@ function formatTelegram(username) {
 
 function setCors(req, res) {
   var requestOrigin = req.headers.origin;
-  var restrict = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN;
-
-  if (restrict && restrict !== '*') {
-    var allowed = restrict.split(',').map(function (item) {
-      return item.trim().replace(/\/$/, '');
-    }).filter(Boolean);
-    var normalized = (requestOrigin || '').replace(/\/$/, '');
-
-    if (requestOrigin && allowed.indexOf(normalized) === -1) {
-      return false;
-    }
-  }
-
   res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
