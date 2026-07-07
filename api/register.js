@@ -4,9 +4,8 @@
  * Переменные окружения (Vercel → Settings → Environment Variables):
  *   TELEGRAM_BOT_TOKEN — токен от @BotFather
  *   TELEGRAM_CHAT_ID   — ID чата, куда приходят заявки
- *   ALLOWED_ORIGINS — URL сайта через запятую, например:
- *     https://sistema-game.vercel.app,https://sistema-game-vert.vercel.app
- *   (или ALLOWED_ORIGIN=* чтобы разрешить все)
+ *   ALLOWED_ORIGINS — опционально, список URL через запятую.
+ *   По умолчанию разрешены запросы с любого origin (любой домен / устройство).
  */
 
 function sanitize(value, maxLen) {
@@ -21,42 +20,25 @@ function formatTelegram(username) {
   return clean ? '@' + clean : '—';
 }
 
-function getAllowedOrigins() {
-  var raw = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '*';
-  if (raw === '*') return null;
-  return raw.split(',').map(function (item) {
-    return item.trim().replace(/\/$/, '');
-  }).filter(Boolean);
-}
-
-function isOriginAllowed(requestOrigin) {
-  if (!requestOrigin) return true;
-
-  var normalized = requestOrigin.replace(/\/$/, '');
-  var allowed = getAllowedOrigins();
-
-  if (allowed === null) return true;
-  if (allowed.indexOf(normalized) !== -1) return true;
-
-  /* Vercel-деплои лендинга sistema-game* */
-  if (/^https:\/\/sistema-game[-a-z0-9]*\.vercel\.app$/i.test(normalized)) {
-    return true;
-  }
-
-  return false;
-}
-
 function setCors(req, res) {
   var requestOrigin = req.headers.origin;
+  var restrict = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN;
 
-  if (!isOriginAllowed(requestOrigin)) {
-    return false;
+  if (restrict && restrict !== '*') {
+    var allowed = restrict.split(',').map(function (item) {
+      return item.trim().replace(/\/$/, '');
+    }).filter(Boolean);
+    var normalized = (requestOrigin || '').replace(/\/$/, '');
+
+    if (requestOrigin && allowed.indexOf(normalized) === -1) {
+      return false;
+    }
   }
 
   res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Vary', 'Origin');
+  if (requestOrigin) res.setHeader('Vary', 'Origin');
   return true;
 }
 
