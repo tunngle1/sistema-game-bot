@@ -102,6 +102,7 @@ module.exports = async function handler(req, res) {
 
   var lines = [
     '🎮 Новая заявка на игру «Система»',
+    '📋 Статус: Заявка',
     '',
     '👤 Имя: ' + name,
     '📞 Телефон: ' + phone,
