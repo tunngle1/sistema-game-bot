@@ -52,6 +52,7 @@ module.exports = async function handler(req, res) {
   var name = sanitize(body.name, 120);
   var phone = sanitize(body.phone, 40);
   var telegram = formatTelegram(body.telegram);
+  var consentMailing = !!body.consentMailing;
   var eventInfo = body.event || {};
 
   if (!name || !phone) {
@@ -73,7 +74,8 @@ module.exports = async function handler(req, res) {
     '',
     '👤 Имя: ' + name,
     '📞 Телефон: ' + phone,
-    '✈️ Telegram: ' + telegram
+    '✈️ Telegram: ' + telegram,
+    '📬 Рекламная рассылка: ' + (consentMailing ? 'да' : 'нет')
   ];
 
   if (priceLine) lines.push('💰 Сумма: ' + priceLine);
