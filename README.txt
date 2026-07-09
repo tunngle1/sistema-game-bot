@@ -45,11 +45,28 @@ bot/
     paymentUrl: 'https://...'  /* после регистрации — редирект на оплату */
   }
 
-СТАТУСЫ В TELEGRAM (сейчас / позже)
------------------------------------
-Сейчас при регистрации:  📋 Статус: Заявка
-Позже (webhook оплаты):  📋 Статус: Оплачено
-Файл-заготовка: bot/api/payment.js (когда подключите платёжку)
+СТАТУСЫ В TELEGRAM
+------------------
+При регистрации:     📋 Статус: Заявка
+После оплаты:        ✅ Статус: Оплачено  (webhook /api/payment)
+
+ENDPOINTS
+---------
+POST /api/register      — заявка с сайта
+POST /api/init-payment  — создать ссылку GetPlatinum (notificationUrl → /api/payment)
+POST /api/payment       — webhook от GetPlatinum после оплаты
+
+ENV НА VERCEL (бот)
+-------------------
+TELEGRAM_BOT_TOKEN
+TELEGRAM_CHAT_ID
+GETPLATINUM_ACCOUNT=shkarov-dmitrii
+GETPLATINUM_API_KEY
+BOT_PUBLIC_URL=https://sistema-game-bot.vercel.app
+PAYMENT_SUCCESS_URL=https://sistema-game-vert.vercel.app/
+PAYMENT_FAIL_URL=https://sistema-game-vert.vercel.app/
+
+После добавления переменных — Redeploy бота.
 
 ЛОКАЛЬНЫЙ ТЕСТ
 --------------
